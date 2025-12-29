@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content__header-row">
+  <div class="content__header-meta">
+    <h2>Finance</h2>
+    <div class="content__subtitle">
+      High-level view of sales amounts by payment status.
+    </div>
+  </div>
+</div>
+
+<div class="cards">
+  <article class="card">
+    <div class="card__label-row">
+      <span>Paid Orders</span>
+      <span class="card__pill">Sales</span>
+    </div>
+    <div class="card__value">
+      ₹ {{ "%.2f"|format(total_paid) }}
+    </div>
+    <div class="card__footer">
+      <span>Already collected</span>
+    </div>
+    <div class="card__sparkline">✅</div>
+  </article>
+
+  <article class="card">
+    <div class="card__label-row">
+      <span>Pending Orders</span>
+      <span class="card__pill">Open</span>
+    </div>
+    <div class="card__value">
+      ₹ {{ "%.2f"|format(total_pending) }}
+    </div>
+    <div class="card__footer">
+      <span>Awaiting payment</span>
+    </div>
+    <div class="card__sparkline">⏳</div>
+  </article>
+
+  <article class="card">
+    <div class="card__label-row">
+      <span>Overdue Orders</span>
+      <span class="card__pill">Alert</span>
+    </div>
+    <div class="card__value card__trend--danger">
+      ₹ {{ "%.2f"|format(total_overdue) }}
+    </div>
+    <div class="card__footer">
+      <span>Follow up required</span>
+    </div>
+    <div class="card__sparkline">⚠️</div>
+  </article>
+</div>
+
+{% endblock %}

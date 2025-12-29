@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Page-specific modal styles -->
+<style>
+  .modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+
+  .modal--open {
+    display: flex;
+  }
+
+  .modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(2px);
+  }
+
+  .modal__dialog {
+    position: relative;
+    z-index: 51;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4);
+    padding: 18px 18px 16px;
+    width: min(520px, 94vw);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .modal__header h3 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .modal__close {
+    border: none;
+    background: none;
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .filter-row select,
+  .filter-row input[type="number"] {
+    border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+    padding: 5px 10px;
+    font-size: 12px;
+    background: #f9fafb;
+    outline: none;
+  }
+
+  .filter-row button {
+    font-size: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .filter-row {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+  }
+</style>
+
+<div class="content__header-row">
+  <div class="content__header-meta">
+    <h2>Attendance</h2>
+    <div class="content__subtitle">
+      Monthly attendance overview for all employees. Click “View details” to see 1 year of attendance in a modal.
+    </div>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="panel__header">
+    <div>
+      <div class="panel__title">Monthly Overview</div>
+      <div class="panel__subtitle">
+        {{ month_names[month - 1][1] }} {{ year }}
+      </div>
+    </div>
+
+    <form method="get" class="filter-row">
+      <select name="month">
+        {% for m, label in month_names %}
+          <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <input type="number" name="year" value="{{ year }}" min="2000" max="2100">
+
+      <button type="submit" class="pill-btn">
+        <span class="icon">🔁</span>
+        <span>Apply</span>
+      </button>
+    </form>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Emp Code</th>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Recorded Days ({{ month_names[month - 1][1] }})</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for row in overview %}
+        {% set emp = row.employee %}
+        <tr>
+          <td>{{ emp.emp_code }}</td>
+          <td>{{ emp.name }}</td>
+          <td>{{ emp.department }}</td>
+          <td>{{ row.days_recorded }}</td>
+          <td>
+            <a class="link-text"
+               href="{{ url_for('attendance_page',
+                                month=month,
+                                year=year,
+                                employee_id=emp.id) }}">
+              View details →
+            </a>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="5">No employees found.</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Modal overlay: Add Attendance (New Entry button) -->
+<div class="modal" id="newEntryModal">
+  <div class="modal__backdrop"></div>
+
+  <div class="modal__dialog">
+    <div class="modal__header">
+      <h3>Add Attendance</h3>
+      <button type="button" class="modal__close" aria-label="Close">✕</button>
+    </div>
+
+    <form method="post" class="form-vertical">
+      <label class="form-label">
+        Employee
+        <select name="employee_id" required>
+          <option value="">Select employee</option>
+          {% for e in employees %}
+            <option value="{{ e.id }}">{{ e.emp_code }} – {{ e.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="form-label">
+        Date
+        <input type="date" name="date" required>
+      </label>
+
+      <div class="form-row">
+        <label class="form-label">
+          Check-in Time
+          <input type="time" name="check_in">
+        </label>
+        <label class="form-label">
+          Check-out Time
+          <input type="time" name="check_out">
+        </label>
+      </div>
+
+      <label class="form-label">
+        Status
+        <select name="status">
+          <option value="Present">Present</option>
+          <option value="Absent">Absent</option>
+          <option value="Leave">Leave</option>
+        </select>
+      </label>
+
+      <label class="form-label">
+        Remarks
+        <input type="text" name="remarks" placeholder="Optional note (e.g. WFH, Half-day)">
+      </label>
+
+      <button type="submit" class="pill-btn primary form-submit">
+        <span class="icon">＋</span>
+        <span>Add Attendance</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal overlay: Detailed yearly attendance for one employee -->
+<div
+  class="modal"
+  id="attendanceDetailModal"
+  data-has-selected="{% if selected_employee %}1{% else %}0{% endif %}"
+>
+  <div class="modal__backdrop"></div>
+
+  <div class="modal__dialog" style="width: min(900px, 98vw);">
+    <div class="modal__header">
+      <h3>
+        {% if selected_employee %}
+          Attendance – {{ selected_employee.name }} ({{ selected_employee.emp_code }})
+        {% else %}
+          Attendance Details
+        {% endif %}
+      </h3>
+      <button type="button" class="modal__close" aria-label="Close">✕</button>
+    </div>
+
+    {% if selected_employee %}
+      <div class="panel__header" style="padding: 0; margin-bottom: 10px;">
+        <div class="panel__subtitle">
+          Detailed attendance for the year {{ year }}. Select another year if needed.
+        </div>
+        <form method="get" class="year-select-row" style="display:flex; gap:8px; align-items:center;">
+          <!-- Keep current month when changing year -->
+          <input type="hidden" name="month" value="{{ month }}">
+          <input type="hidden" name="employee_id" value="{{ selected_employee.id }}">
+
+          <select name="year">
+            {% for y in available_years %}
+              <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="pill-btn">
+            <span class="icon">🔁</span>
+            <span>Change Year</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Day</th>
+              <th>Status</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Hours</th>
+              <th>Remarks</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for row in record_rows %}
+            {% set r = row.rec %}
+            <tr>
+              <td>{{ r.date.strftime("%Y-%m-%d") }}</td>
+              <td>{{ r.date.strftime("%a") }}</td>
+              <td>{{ r.status }}</td>
+              <td>
+                {% if r.check_in %}
+                  {{ r.check_in.strftime("%H:%M") }}
+                {% else %}
+                  –
+                {% endif %}
+              </td>
+              <td>
+                {% if r.check_out %}
+                  {{ r.check_out.strftime("%H:%M") }}
+                {% else %}
+                  –
+                {% endif %}
+              </td>
+              <td>
+                {% if row.hours is not none %}
+                  {{ "%.2f"|format(row.hours) }} h
+                {% else %}
+                  –
+                {% endif %}
+              </td>
+              <td>{{ r.remarks or "–" }}</td>
+              <td>
+                <form method="POST"
+                      action="{{ url_for('delete_attendance_record', record_id=r.id) }}"
+                      onsubmit="return confirm('Delete this attendance record?');">
+                  <button type="submit"
+                          style="color:#c62828; background:none; border:none; cursor:pointer; font-size:14px;">
+                    ❌
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="8">No attendance records for this year.</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p style="font-size: 13px; color: var(--text-muted);">
+        Select "View details" for an employee to see their yearly attendance.
+      </p>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // -------- New Entry modal --------
+    const newEntryBtn = document.getElementById("newEntryBtn");
+    const newEntryModal = document.getElementById("newEntryModal");
+
+    if (newEntryBtn && newEntryModal) {
+      const backdrop1 = newEntryModal.querySelector(".modal__backdrop");
+      const closeBtn1 = newEntryModal.querySelector(".modal__close");
+
+      function openNewEntry() {
+        newEntryModal.classList.add("modal--open");
+      }
+
+      function closeNewEntry() {
+        newEntryModal.classList.remove("modal--open");
+      }
+
+      newEntryBtn.addEventListener("click", openNewEntry);
+      backdrop1.addEventListener("click", closeNewEntry);
+      closeBtn1.addEventListener("click", closeNewEntry);
+    }
+
+    // -------- Detail modal --------
+    const detailModal = document.getElementById("attendanceDetailModal");
+    const backdrop2 = detailModal.querySelector(".modal__backdrop");
+    const closeBtn2 = detailModal.querySelector(".modal__close");
+
+    function openDetail() {
+      detailModal.classList.add("modal--open");
+    }
+
+    function closeDetail() {
+      detailModal.classList.remove("modal--open");
+    }
+
+    backdrop2.addEventListener("click", closeDetail);
+    closeBtn2.addEventListener("click", closeDetail);
+
+    // Auto-open detail modal if the server provided a selected_employee
+    const hasSelectedEmployee = detailModal.getAttribute("data-has-selected") === "1";
+    if (hasSelectedEmployee) {
+      openDetail();
+    }
+
+    // ESC key closes any open modal
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        if (newEntryModal) newEntryModal.classList.remove("modal--open");
+        if (detailModal) detailModal.classList.remove("modal--open");
+      }
+    });
+  });
+</script>
+
+{% endblock %}

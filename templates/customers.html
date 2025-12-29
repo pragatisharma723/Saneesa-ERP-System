@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Page-specific modal styles (only for this page) -->
+<style>
+  .modal {
+    position: fixed;
+    inset: 0;
+    display: none;              /* hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+
+  .modal--open {
+    display: flex;              /* shown when this class is added */
+  }
+
+  .modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(2px);
+  }
+
+  .modal__dialog {
+    position: relative;
+    z-index: 51;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4);
+    padding: 18px 18px 16px;
+    width: min(480px, 92vw);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .modal__header h3 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .modal__close {
+    border: none;
+    background: none;
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+  }
+</style>
+
+<div class="content__header-row">
+  <div class="content__header-meta">
+    <h2>Customers</h2>
+    <div class="content__subtitle">
+      Master data for your business partners.
+    </div>
+  </div>
+</div>
+
+<!-- Single full-width panel: customer list -->
+<section class="panel">
+  <div class="panel__header">
+    <div class="panel__title">Customer List</div>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Company</th>
+          <th>Email</th>
+          <th>Phone</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for c in customers %}
+        <tr>
+          <td>{{ c.name }}</td>
+          <td>{{ c.company }}</td>
+          <td>{{ c.email }}</td>
+          <td>{{ c.phone }}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="4">No customers yet.</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Modal overlay: Add Customer -->
+<div class="modal" id="newEntryModal">
+  <div class="modal__backdrop"></div>
+
+  <div class="modal__dialog">
+    <div class="modal__header">
+      <h3>Add Customer</h3>
+      <button type="button" class="modal__close" aria-label="Close">✕</button>
+    </div>
+
+    <!-- POST to /customers (same route) -->
+    <form method="post" class="form-vertical">
+      <label class="form-label">
+        Name
+        <input type="text" name="name" required>
+      </label>
+
+      <label class="form-label">
+        Company
+        <input type="text" name="company">
+      </label>
+
+      <label class="form-label">
+        Email
+        <input type="email" name="email">
+      </label>
+
+      <label class="form-label">
+        Phone
+        <input type="tel" name="phone">
+      </label>
+
+      <button type="submit" class="pill-btn primary form-submit">
+        <span class="icon">＋</span>
+        <span>Add Customer</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Customers page: connect "New Entry" topbar button to this modal
+  document.addEventListener("DOMContentLoaded", function () {
+    const newEntryBtn = document.getElementById("newEntryBtn");
+    const modal = document.getElementById("newEntryModal");
+
+    if (!newEntryBtn || !modal) {
+      return;
+    }
+
+    const backdrop = modal.querySelector(".modal__backdrop");
+    const closeBtn = modal.querySelector(".modal__close");
+
+    function openModal() {
+      modal.classList.add("modal--open");
+    }
+
+    function closeModal() {
+      modal.classList.remove("modal--open");
+    }
+
+    newEntryBtn.addEventListener("click", openModal);
+    backdrop.addEventListener("click", closeModal);
+    closeBtn.addEventListener("click", closeModal);
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        closeModal();
+      }
+    });
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ page_title }} – Saneesa ERP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <div class="sidebar__logo-mark">S</div>
+      <div class="sidebar__logo-text">
+        <div class="sidebar__logo-title">Saneesa</div>
+        <div class="sidebar__logo-sub">ERP SYSTEM</div>
+      </div>
+    </div>
+
+    <!-- MAIN SECTION -->
+    <div class="sidebar__section-label">Main</div>
+    <nav class="sidebar__nav">
+      <a href="{{ url_for('dashboard') }}" class="sidebar__nav-item {% if page_title=='Dashboard' %}active{% endif %}">
+        <span class="icon">🏠</span>
+        <span class="label">Dashboard</span>
+        <span class="badge">Live</span>
+      </a>
+      <a href="{{ url_for('inventory') }}" class="sidebar__nav-item {% if page_title=='Inventory' %}active{% endif %}">
+        <span class="icon">📦</span>
+        <span class="label">Inventory</span>
+      </a>
+      <a href="{{ url_for('orders_page') }}" class="sidebar__nav-item {% if page_title=='Orders' %}active{% endif %}">
+        <span class="icon">🧾</span>
+        <span class="label">Orders</span>
+      </a>
+      <a href="{{ url_for('customers_page') }}" class="sidebar__nav-item {% if page_title=='Customers' %}active{% endif %}">
+        <span class="icon">👥</span>
+        <span class="label">Customers</span>
+      </a>
+    </nav>
+
+      <!-- HR SECTION -->
+      <div class="sidebar__section-label">HR</div>
+    <nav class="sidebar__nav">
+      <a href="{{ url_for('employees_page') }}"
+        class="sidebar__nav-item {% if page_title=='Employees' %}active{% endif %}">
+        <span class="icon">🧑‍💼</span>
+        <span class="label">Employee Details</span>
+      </a>
+      <a href="{{ url_for('payroll_page') }}"
+        class="sidebar__nav-item {% if page_title=='Payroll' %}active{% endif %}">
+        <span class="icon">💳</span>
+        <span class="label">Payroll</span>
+      </a>
+      <a href="{{ url_for('attendance_page') }}"
+        class="sidebar__nav-item {% if page_title=='Attendance' %}active{% endif %}">
+        <span class="icon">📅</span>
+        <span class="label">Attendance</span>
+      </a>
+    </nav>
+
+    <!-- ADMIN SECTION -->
+    <div class="sidebar__section-label">Administration</div>
+    <nav class="sidebar__nav">
+      <a href="{{ url_for('finance_page') }}" class="sidebar__nav-item {% if page_title=='Finance' %}active{% endif %}">
+        <span class="icon">💰</span>
+        <span class="label">Finance</span>
+      </a>
+      <a href="{{ url_for('settings_page') }}" class="sidebar__nav-item {% if page_title=='Settings' %}active{% endif %}">
+        <span class="icon">⚙️</span>
+        <span class="label">Settings</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__user-avatar">A</div>
+      <div class="sidebar__user-meta">
+        <span class="sidebar__user-name">Admin User</span>
+        <span class="sidebar__user-role">System Admin</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="topbar__menu-btn" id="menuToggle" aria-label="Toggle sidebar">☰</button>
+        <div>
+          <div class="topbar__page-title">{{ page_title }}</div>
+          <div class="topbar__breadcrumbs">Saneesa ERP / {{ page_title }}</div>
+        </div>
+      </div>
+
+        {% if page_title == 'Employees' %}
+    <form class="topbar__search" method="get" action="{{ url_for('employees_page') }}">
+      <div class="topbar__search-box">
+        <span class="icon">🔍</span>
+        <input
+          type="text"
+          name="q"
+          placeholder="Search employee by name or ID…"
+          value="{{ search_query|default('', true) }}"
+        />
+      </div>
+    </form>
+  {% endif %}
+
+      <div class="topbar__right">
+        <!-- <button class="pill-btn" id="dateRangeBtn">
+          <span class="icon">📅</span>
+          <span id="dateRangeLabel">This Month</span>
+        </button> -->
+
+        {% if page_title != 'Dashboard' %}
+          <button class="pill-btn primary" id="newEntryBtn">
+            <span class="icon">＋</span>
+            <span>New Entry</span>
+          </button>
+        {% endif %}
+
+        <!-- <div class="topbar__notif">
+          🔔
+          <span class="topbar__notif-dot"></span>
+        </div> -->
+        <div class="topbar__profile" id="profileMenuBtn">
+          <div class="topbar__profile-avatar">A</div>
+          <div class="topbar__profile-info">
+            <div class="topbar__profile-name">Arpit</div>
+            <div class="topbar__profile-role">Administrator</div>
+          </div>
+
+          <a href="{{ url_for('logout') }}" class="pill-btn" style="margin-left:10px;">
+            <span class="icon">⏻</span>
+            <span>Logout</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <section class="content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-container">
+            {% for category, message in messages %}
+              <div class="flash flash--{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </section>
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

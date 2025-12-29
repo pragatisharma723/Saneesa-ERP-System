@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content__header-row">
+  <div class="content__header-meta">
+    <h2>Overview</h2>
+    <div class="content__subtitle">
+      Quick snapshot of your ERP metrics, updated in real time.
+    </div>
+  </div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="cards">
+  <article class="card">
+    <div class="card__label-row">
+      <span>Total Inventory Items</span>
+      <span class="card__pill">Live</span>
+    </div>
+    <div class="card__value">
+      {{ total_items }}
+      <span class="card__trend card__trend--up">▲</span>
+    </div>
+    <div class="card__footer">
+      <span>From all categories</span>
+      <a href="{{ url_for('inventory') }}" class="link-text">View inventory →</a>
+    </div>
+    <div class="card__sparkline">📦</div>
+  </article>
+
+  <article class="card">
+    <div class="card__label-row">
+      <span>Low Stock Items</span>
+    </div>
+    <div class="card__value">
+      {{ low_stock }}
+      <span class="card__trend card__trend--down">▼</span>
+    </div>
+    <div class="card__footer">
+      <span>Reorder before next week</span>
+      <a href="{{ url_for('inventory') }}" class="link-text">Reorder list →</a>
+    </div>
+    <div class="card__sparkline">📉</div>
+  </article>
+
+  <article class="card">
+    <div class="card__label-row">
+      <span>Customers</span>
+      <span class="card__pill">Master</span>
+    </div>
+    <div class="card__value">
+      {{ total_customers }}
+      <span class="card__trend card__trend--up">▲</span>
+    </div>
+    <div class="card__footer">
+      <span>Active in the system</span>
+      <a href="{{ url_for('customers_page') }}" class="link-text">Customer list →</a>
+    </div>
+    <div class="card__sparkline">👥</div>
+  </article>
+
+  <article class="card">
+    <div class="card__label-row">
+      <span>Total Orders</span>
+      <span class="card__pill">Sales</span>
+    </div>
+    <div class="card__value">
+      {{ total_orders }}
+      <span class="card__trend card__trend--up">▲</span>
+    </div>
+    <div class="card__footer">
+      <span>Sales documents only</span>
+      <a href="{{ url_for('orders_page') }}" class="link-text">Orders →</a>
+    </div>
+    <div class="card__sparkline">🧾</div>
+  </article>
+</div>
+
+<!-- PANELS -->
+<div class="panels">
+  <!-- RECENT ORDERS TABLE -->
+  <section class="panel">
+    <div class="panel__header">
+      <div>
+        <div class="panel__title">Recent Orders</div>
+        <div class="panel__subtitle">Last few orders captured in the system</div>
+      </div>
+      <div class="panel__tabs">
+        <div class="panel__tab active">All</div>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+        <tr>
+          <th>Order #</th>
+          <th>Customer</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for o in orders %}
+          <tr>
+            <td>{{ o.order_number }}</td>
+            <td>{{ o.customer_name }}</td>
+            <td>₹ {{ "%.2f"|format(o.amount) }}</td>
+            <td>
+              {% set cls = 'status-pill' %}
+              {% if o.status == 'Paid' %}
+                {% set cls = 'status-pill status-pill--success' %}
+              {% elif o.status == 'Overdue' %}
+                {% set cls = 'status-pill status-pill--danger' %}
+              {% elif o.status == 'Pending' %}
+                {% set cls = 'status-pill status-pill--pending' %}
+              {% endif %}
+              <span class="{{ cls }}">{{ o.status }}</span>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="4">No orders yet.</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel__footer">
+      <span>Showing {{ orders|length }} orders</span>
+      <a href="{{ url_for('orders_page') }}" class="link-text">View all orders →</a>
+    </div>
+  </section>
+
+  <!-- RIGHT PANEL – dynamic module usage -->
+  <section class="panel">
+    <style>
+      .usage-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 8px;
+      }
+
+      .usage-row__header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+
+      .usage-row__name {
+        font-weight: 500;
+      }
+
+      .usage-row__value {
+        color: var(--text-muted);
+      }
+
+      .usage-row__bar {
+        width: 100%;
+        height: 6px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        overflow: hidden;
+      }
+
+      .usage-row__bar-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #4f46e5, #22c55e);
+        width: 0;
+      }
+
+      @media (max-width: 768px) {
+        .usage-row__header {
+          flex-direction: column;
+          gap: 2px;
+        }
+      }
+    </style>
+
+    <div class="panel__header">
+      <div>
+        <div class="panel__title">Module Usage</div>
+        <div class="panel__subtitle">
+          Live usage snapshot based on records in each module.
+        </div>
+      </div>
+
+      <form method="get" action="{{ url_for('usage_report') }}">
+        <button type="submit" class="pill-btn">
+          <span class="icon">⬇</span>
+          <span>Download report</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="usage-list">
+      {% for row in module_usage %}
+        <div class="usage-row">
+          <div class="usage-row__header">
+            <span class="usage-row__name">{{ row.name }}</span>
+            <span class="usage-row__value">
+              {{ row.records }} record{% if row.records != 1 %}s{% endif %} · {{ row.percentage }}&#37;
+            </span>
+          </div>
+          <div class="usage-row__bar">
+            <!-- NOTE: no % in Jinja, just a data attribute -->
+            <div class="usage-row__bar-fill"
+                 data-usage-width="{{ row.percentage }}"></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="panel__footer">
+      <span>Total records across modules: <strong>{{ total_usage }}</strong></span>
+      <a href="{{ url_for('usage_report') }}" class="link-text">Usage report (CSV) →</a>
+    </div>
+  </section>
+</div>
+
+<!-- Small inline script to apply widths from data attribute -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const bars = document.querySelectorAll(".usage-row__bar-fill");
+    bars.forEach(function (bar) {
+      const pct = parseFloat(bar.getAttribute("data-usage-width") || "0");
+      bar.style.width = pct + "%";
+    });
+  });
+</script>
+
+{% endblock %}

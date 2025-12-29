@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Saneesa ERP System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- You can swap this with the font from your Figma if you know it -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-body: #f5f7fb;
+      --bg-sidebar: #0f172a;
+      --bg-sidebar-hover: #111827;
+      --bg-card: #ffffff;
+      --bg-topbar: #ffffff;
+      --primary: #2563eb;
+      --primary-soft: #dbeafe;
+      --text-main: #0f172a;
+      --text-muted: #6b7280;
+      --border-subtle: #e5e7eb;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.09);
+      --transition: 200ms ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Layout */
+
+    .app {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+
+    .sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      color: #e5e7eb;
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      inset-block: 0;
+      left: 0;
+      z-index: 20;
+      transition: transform var(--transition);
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+
+    .sidebar__logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px 18px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+      margin-bottom: 18px;
+    }
+
+    .sidebar__logo-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 0 0, #22c55e, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: #f9fafb;
+    }
+
+    .sidebar__logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar__logo-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .sidebar__logo-sub {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: #9ca3af;
+    }
+
+    .sidebar__section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9ca3af;
+      margin: 18px 10px 8px;
+    }
+
+    .sidebar__nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar__nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .sidebar__nav-item span.icon {
+      width: 20px;
+      display: inline-flex;
+      justify-content: center;
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
+    .sidebar__nav-item span.label {
+      flex: 1;
+    }
+
+    .sidebar__nav-item span.badge {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.18);
+      color: #bfdbfe;
+    }
+
+    .sidebar__nav-item:hover {
+      background: var(--bg-sidebar-hover);
+    }
+
+    .sidebar__nav-item.active {
+      background: rgba(37, 99, 235, 0.18);
+      color: #eff6ff;
+    }
+
+    .sidebar__footer {
+      margin-top: auto;
+      border-top: 1px solid rgba(148, 163, 184, 0.35);
+      padding-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .sidebar__user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #2563eb, #22c55e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .sidebar__user-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar__user-name {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .sidebar__user-role {
+      font-size: 11px;
+    }
+
+    /* Main area */
+
+    .main {
+      flex: 1;
+      margin-left: 260px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      transition: margin-left var(--transition);
+    }
+
+    .main.full-width {
+      margin-left: 0;
+    }
+
+    /* Topbar */
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: var(--bg-topbar);
+      box-shadow: 0 1px 0 rgba(148, 163, 184, 0.35);
+    }
+
+    .topbar__left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar__menu-btn {
+      display: none;
+      border: none;
+      background: none;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .topbar__page-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .topbar__breadcrumbs {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .topbar__search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      max-width: 420px;
+      margin: 0 40px;
+    }
+
+    .topbar__search-box {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: #f9fafb;
+    }
+
+    .topbar__search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13px;
+      width: 100%;
+    }
+
+    .topbar__search-box span.icon {
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    .topbar__right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .pill-btn {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      padding: 7px 12px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    .pill-btn.primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #eff6ff;
+      box-shadow: 0 12px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .pill-btn span.icon {
+      font-size: 14px;
+    }
+
+    .topbar__notif {
+      position: relative;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .topbar__notif-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #f97316;
+      border: 2px solid var(--bg-topbar);
+      position: absolute;
+      top: 0;
+      right: -2px;
+    }
+
+    .topbar__profile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .topbar__profile-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: #4b5563;
+    }
+
+    .topbar__profile-info {
+      font-size: 12px;
+    }
+
+    .topbar__profile-name {
+      font-weight: 500;
+    }
+
+    .topbar__profile-role {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    /* Content area */
+
+    .content {
+      padding: 20px 24px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .content__header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .content__header-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .content__subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .content__header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .content__header-actions .pill-btn {
+      font-size: 12px;
+    }
+
+    /* Cards grid */
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.21);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card__label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .card__pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .card__value {
+      font-size: 22px;
+      font-weight: 600;
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+
+    .card__trend {
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card__trend--up {
+      color: #16a34a;
+    }
+
+    .card__trend--down {
+      color: #dc2626;
+    }
+
+    .card__footer {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card__sparkline {
+      position: absolute;
+      inset: auto -8px -6px auto;
+      opacity: 0.35;
+      font-size: 34px;
+      pointer-events: none;
+    }
+
+    /* Main panels */
+
+    .panels {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr);
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .panel {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      padding: 14px 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .panel__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .panel__title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .panel__subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .panel__tabs {
+      display: inline-flex;
+      padding: 2px;
+      border-radius: 999px;
+      background: #f9fafb;
+      border: 1px solid var(--border-subtle);
+      font-size: 11px;
+    }
+
+    .panel__tab {
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .panel__tab.active {
+      background: #111827;
+      color: #f9fafb;
+    }
+
+    /* Table */
+
+    .table-wrapper {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f9fafb;
+    }
+
+    th,
+    td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    th {
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    tbody tr:hover {
+      background: #f3f4f6;
+    }
+
+    .status-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-pill--success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-pill--pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-pill--danger {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .tag-soft {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .panel__footer {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .link-text {
+      font-size: 12px;
+      color: var(--primary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Right panel / stats list */
+
+    .stat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .stat-list__row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .stat-list__label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+    }
+
+    .stat-list__dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #2563eb;
+      opacity: 0.8;
+    }
+
+    .stat-list__value {
+      font-weight: 500;
+    }
+
+    .stat-list__bar-outer {
+      margin-top: 6px;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .stat-list__bar-inner {
+      height: 100%;
+      width: 62%;
+      background: linear-gradient(135deg, #2563eb, #22c55e);
+    }
+
+    /* Responsive */
+
+    @media (max-width: 992px) {
+      .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .panels {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .topbar__search {
+        margin: 0 16px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .topbar__menu-btn {
+        display: inline-flex;
+      }
+
+      .topbar__search {
+        display: none;
+      }
+
+      .cards {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <div class="sidebar__logo-mark">S</div>
+      <div class="sidebar__logo-text">
+        <div class="sidebar__logo-title">Saneesa</div>
+        <div class="sidebar__logo-sub">ERP SYSTEM</div>
+      </div>
+    </div>
+
+    <div class="sidebar__section-label">Main</div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__nav-item active">
+        <span class="icon">🏠</span>
+        <span class="label">Dashboard</span>
+        <span class="badge">Live</span>
+      </div>
+      <div class="sidebar__nav-item">
+        <span class="icon">📦</span>
+        <span class="label">Inventory</span>
+      </div>
+      <div class="sidebar__nav-item">
+        <span class="icon">🧾</span>
+        <span class="label">Orders</span>
+      </div>
+      <div class="sidebar__nav-item">
+        <span class="icon">👥</span>
+        <span class="label">Customers</span>
+      </div>
+    </nav>
+
+    <div class="sidebar__section-label">Administration</div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__nav-item">
+        <span class="icon">💰</span>
+        <span class="label">Finance</span>
+      </div>
+      <div class="sidebar__nav-item">
+        <span class="icon">⚙️</span>
+        <span class="label">Settings</span>
+      </div>
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__user-avatar">A</div>
+      <div class="sidebar__user-meta">
+        <span class="sidebar__user-name">Admin User</span>
+        <span class="sidebar__user-role">System Admin</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="topbar__menu-btn" id="menuToggle" aria-label="Toggle sidebar">☰</button>
+        <div>
+          <div class="topbar__page-title">Dashboard</div>
+          <div class="topbar__breadcrumbs">Saneesa ERP / Dashboard</div>
+        </div>
+      </div>
+
+      <div class="topbar__search">
+        <div class="topbar__search-box">
+          <span class="icon">🔍</span>
+          <input type="text" placeholder="Search modules, invoices, customers…" />
+        </div>
+      </div>
+
+      <div class="topbar__right">
+        <button class="pill-btn" id="dateRangeBtn">
+          <span class="icon">📅</span>
+          <span id="dateRangeLabel">This Month</span>
+        </button>
+        <button class="pill-btn primary">
+          <span class="icon">＋</span>
+          <span>New Entry</span>
+        </button>
+        <div class="topbar__notif">
+          🔔
+          <span class="topbar__notif-dot"></span>
+        </div>
+        <div class="topbar__profile" id="profileMenuBtn">
+          <div class="topbar__profile-avatar">A</div>
+          <div class="topbar__profile-info">
+            <div class="topbar__profile-name">Arpit</div>
+            <div class="topbar__profile-role">Administrator</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <section class="content">
+      <!-- Heading + filters row -->
+      <div class="content__header-row">
+        <div class="content__header-meta">
+          <h2>Overview</h2>
+          <div class="content__subtitle">
+            Quick snapshot of your ERP metrics, updated in real time.
+          </div>
+        </div>
+
+        <div class="content__header-actions">
+          <button class="pill-btn">
+            <span class="icon">⬇</span>
+            <span>Export</span>
+          </button>
+          <button class="pill-btn">
+            <span class="icon">📊</span>
+            <span>Analytics View</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="cards">
+        <article class="card">
+          <div class="card__label-row">
+            <span>Active Orders</span>
+            <span class="card__pill">Live</span>
+          </div>
+          <div class="card__value">
+            248
+            <span class="card__trend card__trend--up">
+              ▲ 12%
+            </span>
+          </div>
+          <div class="card__footer">
+            <span>Compared to last month</span>
+            <span class="link-text">View all →</span>
+          </div>
+          <div class="card__sparkline">〰️</div>
+        </article>
+
+        <article class="card">
+          <div class="card__label-row">
+            <span>Revenue</span>
+            <span class="card__pill">INR</span>
+          </div>
+          <div class="card__value">
+            ₹ 5.23L
+            <span class="card__trend card__trend--up">▲ 8.4%</span>
+          </div>
+          <div class="card__footer">
+            <span>Billing cycle: 1–31 May</span>
+            <span class="link-text">Invoices →</span>
+          </div>
+          <div class="card__sparkline">〽️</div>
+        </article>
+
+        <article class="card">
+          <div class="card__label-row">
+            <span>Pending Approvals</span>
+            <span class="card__pill">Workflow</span>
+          </div>
+          <div class="card__value">
+            19
+            <span class="card__trend card__trend--down">▼ 4</span>
+          </div>
+          <div class="card__footer">
+            <span>Mostly purchase orders</span>
+            <span class="link-text">Open queue →</span>
+          </div>
+          <div class="card__sparkline">📈</div>
+        </article>
+
+        <article class="card">
+          <div class="card__label-row">
+            <span>Low Stock Items</span>
+          </div>
+          <div class="card__value">
+            36
+            <span class="card__trend card__trend--down">▼ 2</span>
+          </div>
+          <div class="card__footer">
+            <span>Reorder before next week</span>
+            <span class="link-text">Inventory →</span>
+          </div>
+          <div class="card__sparkline">📉</div>
+        </article>
+      </div>
+
+      <!-- PANELS -->
+      <div class="panels">
+        <!-- Left panel: table -->
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <div class="panel__title">Recent Transactions</div>
+              <div class="panel__subtitle">Last 10 ERP entries across modules</div>
+            </div>
+            <div class="panel__tabs" id="transactionsTabs">
+              <div class="panel__tab active" data-tab="all">All</div>
+              <div class="panel__tab" data-tab="sales">Sales</div>
+              <div class="panel__tab" data-tab="purchase">Purchase</div>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+              <tr>
+                <th>ID</th>
+                <th>Module</th>
+                <th>Party</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Created</th>
+              </tr>
+              </thead>
+              <tbody id="transactionsBody">
+              <!-- Filled by JS below for demo -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel__footer">
+            <span id="transactionsSummary">Showing 6 of 6 records</span>
+            <span class="link-text">View full ledger →</span>
+          </div>
+        </section>
+
+        <!-- Right panel: small stats -->
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <div class="panel__title">Module Usage</div>
+              <div class="panel__subtitle">Active sessions by ERP module</div>
+            </div>
+          </div>
+
+          <div class="stat-list">
+            <div class="stat-list__row">
+              <div class="stat-list__label">
+                <span class="stat-list__dot"></span>
+                <span>Inventory</span>
+              </div>
+              <div class="stat-list__value">38%</div>
+            </div>
+            <div class="stat-list__row">
+              <div class="stat-list__label">
+                <span class="stat-list__dot" style="background:#22c55e;"></span>
+                <span>Sales & Billing</span>
+              </div>
+              <div class="stat-list__value">27%</div>
+            </div>
+            <div class="stat-list__row">
+              <div class="stat-list__label">
+                <span class="stat-list__dot" style="background:#f97316;"></span>
+                <span>Purchase</span>
+              </div>
+              <div class="stat-list__value">19%</div>
+            </div>
+            <div class="stat-list__row">
+              <div class="stat-list__label">
+                <span class="stat-list__dot" style="background:#a855f7;"></span>
+                <span>HR & Payroll</span>
+              </div>
+              <div class="stat-list__value">16%</div>
+            </div>
+          </div>
+
+          <div class="stat-list__bar-outer">
+            <div class="stat-list__bar-inner"></div>
+          </div>
+
+          <div class="panel__footer">
+            <span>Last sync: <strong>Just now</strong></span>
+            <span class="link-text">Usage reports →</span>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // Sidebar toggle on mobile
+  const sidebar = document.getElementById("sidebar");
+  const main = document.getElementById("main");
+  const menuToggle = document.getElementById("menuToggle");
+
+  menuToggle?.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+  });
+
+  // Dummy transactions data to render table
+  const transactions = [
+    {
+      id: "SO-1048",
+      module: "Sales",
+      party: "Saneesa Retail Pvt. Ltd.",
+      amount: "₹ 42,300",
+      status: "Paid",
+      statusType: "success",
+      created: "Today, 16:32",
+      type: "sales"
+    },
+    {
+      id: "PO-893",
+      module: "Purchase",
+      party: "NexGen Suppliers",
+      amount: "₹ 78,450",
+      status: "Pending",
+      statusType: "pending",
+      created: "Today, 12:09",
+      type: "purchase"
+    },
+    {
+      id: "GRN-542",
+      module: "Inventory",
+      party: "Warehouse 02",
+      amount: "58 Items",
+      status: "Received",
+      statusType: "success",
+      created: "Yesterday",
+      type: "all"
+    },
+    {
+      id: "JV-229",
+      module: "Finance",
+      party: "Adjustment Entry",
+      amount: "₹ 9,800",
+      status: "Posted",
+      statusType: "success",
+      created: "Yesterday",
+      type: "all"
+    },
+    {
+      id: "SO-1047",
+      module: "Sales",
+      party: "Brightway Traders",
+      amount: "₹ 15,900",
+      status: "Overdue",
+      statusType: "danger",
+      created: "3 days ago",
+      type: "sales"
+    },
+    {
+      id: "PO-887",
+      module: "Purchase",
+      party: "Prime Exports",
+      amount: "₹ 1,24,000",
+      status: "Approved",
+      statusType: "success",
+      created: "5 days ago",
+      type: "purchase"
+    }
+  ];
+
+  const transactionsBody = document.getElementById("transactionsBody");
+  const transactionsTabs = document.getElementById("transactionsTabs");
+  const transactionsSummary = document.getElementById("transactionsSummary");
+
+  function getStatusClass(type) {
+    switch (type) {
+      case "success":
+        return "status-pill status-pill--success";
+      case "pending":
+        return "status-pill status-pill--pending";
+      case "danger":
+        return "status-pill status-pill--danger";
+      default:
+        return "status-pill";
+    }
+  }
+
+  function renderTransactions(filter = "all") {
+    const filtered = transactions.filter(t => {
+      if (filter === "all") return true;
+      return t.type === filter || t.module.toLowerCase() === filter;
+    });
+
+    transactionsBody.innerHTML = filtered.map(t => `
+      <tr>
+        <td>${t.id}</td>
+        <td><span class="tag-soft">${t.module}</span></td>
+        <td>${t.party}</td>
+        <td>${t.amount}</td>
+        <td>
+          <span class="${getStatusClass(t.statusType)}">
+            ${t.status}
+          </span>
+        </td>
+        <td>${t.created}</td>
+      </tr>
+    `).join("");
+
+    transactionsSummary.textContent = `Showing ${filtered.length} of ${transactions.length} records`;
+  }
+
+  renderTransactions();
+
+  // Tab switching
+  transactionsTabs?.addEventListener("click", (e) => {
+    const tab = e.target.closest(".panel__tab");
+    if (!tab) return;
+
+    const filter = tab.dataset.tab;
+    document.querySelectorAll("#transactionsTabs .panel__tab").forEach(t =>
+      t.classList.remove("active")
+    );
+    tab.classList.add("active");
+    renderTransactions(filter);
+  });
+
+  // Date range dropdown (simple demo)
+  const dateRangeBtn = document.getElementById("dateRangeBtn");
+  const dateRangeLabel = document.getElementById("dateRangeLabel");
+  const dateRanges = ["Today", "This Week", "This Month", "This Quarter", "This Year"];
+  let dateRangeIndex = 2;
+
+  dateRangeBtn?.addEventListener("click", () => {
+    dateRangeIndex = (dateRangeIndex + 1) % dateRanges.length;
+    dateRangeLabel.textContent = dateRanges[dateRangeIndex];
+  });
+
+  // Simple fake profile menu click (for extension)
+  const profileMenuBtn = document.getElementById("profileMenuBtn");
+  profileMenuBtn?.addEventListener("click", () => {
+    alert("Profile menu could open here (Settings / Logout etc.)");
+  });
+</script>
+</body>
+</html>

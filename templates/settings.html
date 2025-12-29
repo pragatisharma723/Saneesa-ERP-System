@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content__header-row">
+  <div class="content__header-meta">
+    <h2>Settings</h2>
+    <div class="content__subtitle">
+      Basic configuration (dummy form for now).
+    </div>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="panel__header">
+    <div class="panel__title">General Settings</div>
+  </div>
+
+  <form class="form-vertical">
+    <label class="form-label">
+      Company Name
+      <input type="text" value="Saneesa ERP Demo" disabled>
+    </label>
+
+    <label class="form-label">
+      Default Currency
+      <select disabled>
+        <option>INR (₹)</option>
+      </select>
+    </label>
+
+    <label class="form-label">
+      Timezone
+      <select disabled>
+        <option>Asia/Kolkata (IST)</option>
+      </select>
+    </label>
+
+    <button type="button" class="pill-btn form-submit" disabled>
+      <span class="icon">💾</span>
+      <span>Save (Demo Only)</span>
+    </button>
+  </form>
+</section>
+
+{% endblock %}
